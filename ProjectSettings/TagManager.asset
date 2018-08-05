@@ -6,6 +6,7 @@ TagManager:
   tags:
   - snow
   - cube
+  - score
   layers:
   - Default
   - TransparentFX

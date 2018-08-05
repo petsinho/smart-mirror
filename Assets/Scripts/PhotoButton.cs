@@ -1,35 +1,57 @@
-﻿
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UI;
-public class PhotoButton : MonoBehaviour
+
+public class PhotoButton
+ : MonoBehaviour
 {
-    //Make sure to attach these Buttons in the Inspector
+
     public Button photoButton;
-    public Transform brick;
+    private Texture2D snapshot;
 
     void Start()
     {
         Button btn = photoButton.GetComponent<Button>();
-        btn.onClick.AddListener(PhotoButtonClick);
+        btn.onClick.AddListener(photoButtonClick);
     }
 
-    void PhotoButtonClick()
+    IEnumerator RecordFrame()
     {
+        yield return new WaitForEndOfFrame();
+        this.snapshot = ScreenCapture.CaptureScreenshotAsTexture();
+        // do something with texture
+
+        System.IO.File.WriteAllBytes("snapshots/snap" + DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss").Replace(":", "-") + ".png", this.snapshot.EncodeToPNG());
+
+        // cleanup
+        // Object.Destroy(texture);
+    }
+
+    public void LateUpdate()
+    {
+    }
+
+    private void SaveScreenshot()
+    {
+        print("saving this ");
+        print(this.snapshot);
+        print(snapshot);
+    }
+
+    void photoButtonClick()
+    {
+        print("taking photo...");
         GameObject VideoCanvasGO = GameObject.Find("Video Canvas");
-        print(VideoCanvasGO);
         VideoCanvasGO.GetComponent<Canvas>().enabled = true;
         GameObject effectPlaceholder = GameObject.FindGameObjectWithTag("cube");
         Vector3 placeholderPos = effectPlaceholder.transform.localPosition;
 
-        for (int y = 0; y < 250; y += 45)
-        {
-            for (int x = 0; x < 250; x += 40)
-            {
-                Instantiate(brick, new Vector3(placeholderPos.x + x, placeholderPos.y + y, placeholderPos.z), Quaternion.identity);
-            }
-        }
+        StartCoroutine(RecordFrame());
+        SaveScreenshot();
+        // Todo: load up some nice text, messages, 3, 2, 1 count down and take a snapshot
+
+
 
     }
-
 }
